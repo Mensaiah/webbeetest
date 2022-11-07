@@ -1,6 +1,8 @@
-export class MenuItemsService {
+import { Op } from "sequelize";
+import MenuItem from "./entities/menu-item.entity";
 
-  /* TODO: complete getMenuItems so that it returns a nested menu structure
+export class MenuItemsService {
+    /* TODO: complete getMenuItems so that it returns a nested menu structure
     Requirements:
     - your code should result in EXACTLY one SQL query no matter the nesting level or the amount of menu items.
     - it should work for infinite level of depth (children of childrens children of childrens children, ...)
@@ -75,7 +77,20 @@ export class MenuItemsService {
     ]
   */
 
-  async getMenuItems() {
-    throw new Error('TODO in task 3');
-  }
+    async getMenuItems() {
+        const allMenuItems = await MenuItem.findAll({
+            include: [
+                {
+                    model: MenuItem,
+                    include: [{ model: MenuItem, include: [MenuItem] }],
+                },
+            ],
+            where: {
+                parentId: {
+                    [Op.eq]: null,
+                },
+            },
+        });
+        return allMenuItems;
+    }
 }
